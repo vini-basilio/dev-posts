@@ -1,5 +1,6 @@
 package edu.blog.dev_posts.service.imp;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
@@ -31,6 +32,17 @@ public class UserServiceImp implements UserService {
         userToSave.setLogin(userToCreate.getLogin());
         userToSave.setName(userToCreate.getName());
         return userRespository.save(userToSave);
+    }
+
+    @Override
+    public Void delete(Long id) {
+        userRespository.deleteById(id);
+        return null;
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userRespository.findAll();
     }
 
 }
