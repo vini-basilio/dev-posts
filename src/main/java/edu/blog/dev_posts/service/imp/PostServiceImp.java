@@ -22,19 +22,15 @@ public class PostServiceImp implements PostService {
     }
 
     @Override
-    public Post createPost(PostCreateDTO post) {
-        var user = userService.findById(post.getUserId());
+    public Post createPost(PostCreateDTO post, Long id) {
+        var user = userService.findById(id);
         var postToSave = new Post();
+
         postToSave.setPost(post.getPost());
+        postToSave.setTitle(post.getTitle());
         postToSave.setUser(user);
+
         return postRespository.save(postToSave);
     }
 
-    @Override
-    public Post findById(Long id) {
-        var post = postRespository.findById(id);
-        if (post.isEmpty())
-            new IllegalArgumentException("This account does not exists");
-        return post.get();
-    }
 }

@@ -20,7 +20,6 @@ import jakarta.validation.Valid;
 
 @Validated
 @RestController
-@RequestMapping("/posts")
 public class PostsController {
 
     private final PostService postService;
@@ -29,14 +28,8 @@ public class PostsController {
         this.postService = postService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Post> findById(@Valid @PathVariable Long id) {
-        var post = postService.findById(id);
-        return ResponseEntity.ok().body(post);
-    }
-
-    @PostMapping
-    public ResponseEntity<Post> create(@Valid @RequestBody PostCreateDTO post) {
+    @PostMapping("users/{userId}/posts")
+    public ResponseEntity<Post> create(@Valid @RequestBody PostCreateDTO post, @PathVariable long userId) {
         var createdPost = postService.createPost(post);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
