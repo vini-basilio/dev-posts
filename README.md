@@ -1,14 +1,14 @@
-# 📝 User Post API para Microblog
+@# 📝 User Post API para Microblog
 
-Uma API RESTful para gerenciar usuários e seus posts, feita com Spring Boot 3.2.4 e Java 17.  
-Ideal para testes, aprendizado e como entrega de desafio técnico.
+Uma API RESTful para gerenciar usuários (leitores e escritores) e seus posts, feita com Spring Boot 3.2.4 e Java 17.
 
 ---
 
 ## 🚀 Funcionalidades
 
-- Criar e listar usuários
-- Criar posts associados a usuários
+- Registro de leitores e escritores
+- Autenticação com login e token JWT
+- Criação e listagem de posts por usuários autenticados
 - Validações com Bean Validation
 - Swagger UI para documentação interativa
 - Banco em memória (H2)
@@ -19,8 +19,9 @@ Ideal para testes, aprendizado e como entrega de desafio técnico.
 
 - Java 17
 - Spring Boot 3.2.4
-  - Web
-  - Data JPA
+  - Spring Web
+  - Spring Data JPA
+  - Spring Security
   - Validation
 - H2 Database
 - Lombok
@@ -38,65 +39,139 @@ Ideal para testes, aprendizado e como entrega de desafio técnico.
 ### Passo a passo
 
 ```bash
-git clone https://github.com/seu-usuario/user-post-api.git
-cd user-post-api
+# https
+git https://github.com/vini-basilio/dev-posts.git
+cd dev-posts
 ./mvnw spring-boot:run
 ```
 
 Acesse a documentação Swagger:  
-👉 http://localhost:8080/swagger-ui.html
+👉 [`http://localhost:8080/swagger-ui.html`](http://localhost:8080/swagger-ui.html)
+
+---
+
+## 📚 Documentação da API
+
+Você pode testar todas as rotas diretamente pelo Swagger UI, mas se quiser importar no Postman:
+
+1. Gere o arquivo JSON do Swagger:
+
+   - Rode a aplicação
+   - Acesse: [`http://localhost:8080/v3/api-docs`](http://localhost:8080/v3/api-docs)
+   - Salve o conteúdo como `openapi.json`
+
+2. Importe no Postman:
+   - Abra o Postman > Import > Raw Text ou File > selecione o `openapi.json`
+
+---
+
+## ⚙️ Configurações obrigatórias
+
+Antes de rodar a API, é necessário configurar o arquivo src/main/resources/application.properties com os parâmetros abaixo:
+
+```
+# Configurações do banco H2
+spring.datasource.url=jdbc:h2:mem:seu_banco
+spring.datasource.username=seu_nome
+spring.datasource.password=
+spring.jpa.show-sql=true
+spring.jpa.open-in-view=false
+spring.jpa.hibernate.ddl-auto=create
+# Opções: validate | update | create | create-drop
+spring.jpa.properties.hibernate.format_sql=true
+
+# Console web do H2
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+spring.h2.console.settings.trace=false
+spring.h2.console.settings.web-allow-others=false
+
+# Configurações de segurança e token JWT
+api.security.token.secret=seu_segredo
+# Tempo de expiração do token (em ms)
+api.security.token.expiration=360000
+
+# Senha usada para criar o admin na inicialização (exemplo de uso)
+api.admin.password=senha
+```
+
+> 💡 Dica: Você pode trocar esses valores conforme sua necessidade, principalmente os campos secret, username e a senha de admin
+
+## 🔐 Autenticação
+
+- **Endpoint de login:** `POST /users/login`
+- Envie o `login` e `password`
+- Você receberá um **token JWT**
+- Use o token no Postman/Swagger como `Bearer <token>`
 
 ---
 
 ## 🔗 Endpoints principais
 
-### Usuários
+### 🧑 Registro de usuários
 
-| Método | Rota          | Ação                    |
-| ------ | ------------- | ----------------------- |
-| GET    | `/users`      | Lista todos os usuários |
-| GET    | `/users/{id}` | Detalha um usuário      |
-| POST   | `/users`      | Cria um novo usuário    |
-| DELETE | `/users/{id}` | Remove um usuário       |
+| Método | Rota                     | Ação                    |
+| ------ | ------------------------ | ----------------------- |
+| POST   | `/users/register/reader` | Cadastrar novo leitor   |
+| POST   | `/users/register/writer` | Cadastrar novo escritor |
 
-### Posts
+### 🔑 Login
 
-| Método | Rota                    | Ação                        |
-| ------ | ----------------------- | --------------------------- |
-| POST   | `/users/{userId}/posts` | Cria um post para o usuário |
+| Método | Rota           | Ação          |
+| ------ | -------------- | ------------- |
+| POST   | `/users/login` | Login e token |
 
----
+### 📝 Posts
 
-## 🧪 Exemplo de JSON
-
-### Criar usuário
-
-```json
-{
-  "name": "João da Silva",
-  "login": "joao@example.com"
-}
-```
-
-### Criar post
-
-```json
-{
-  "title": "Meu primeiro post",
-  "content": "Esse é o conteúdo do post."
-}
-```
+| Método | Rota           | Ação                            |
+| ------ | -------------- | ------------------------------- |
+| POST   | `/users/posts` | Cria um post (auth obrigatória) |
 
 ---
 
-## 🧠 Observações
+## 🧪 Exemplos de JSON
 
-- A relação `User` → `Post` é bidirecional.
-- A validação ocorre nos DTOs com anotações como `@NotBlank`, `@Email`, `@Size`, etc.
-- O projeto usa `CascadeType.ALL` para persistir posts junto com o usuário (quando aplicável).
+### Registrar leitor
+
+```json
+{
+  "name": "Maria Leitura",
+  "login": "maria@example.com",
+  "password": "12345"
+}
+```
+
+### Registrar escritor
+
+```json
+{
+  "name": "João Escritor",
+  "login": "joao@example.com",
+  "password": "12345",
+  "adminPassword": "senhaSecreta"
+}
+```
+
+### Login
+
+```json
+{
+  "login": "joao@example.com",
+  "password": "12345"
+}
+```
+
+### Criar post (autenticado)
+
+```json
+{
+  "title": "Post legal",
+  "post": "Esse é o conteúdo do post"
+}
+```
 
 ---
 
 ## 👨‍💻 Autor
 
-Feito com 💻 por [Seu Nome Aqui](https://github.com/vini-basilio)
+Feito com 💻 por [Vini](https://github.com/vini-basilio)
