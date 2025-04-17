@@ -14,4 +14,12 @@ public class PostCreateDTO {
     @NotNull(message = "Post can not be null")
     @Size(min = 1, max = 255, message = "Post should be between 1 and 255 letter")
     private String post;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getPost() {
+        return post;
+    }
 }

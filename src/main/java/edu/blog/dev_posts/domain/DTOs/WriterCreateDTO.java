@@ -1,13 +1,12 @@
 package edu.blog.dev_posts.domain.DTOs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class UserCreateDTO {
+public class WriterCreateDTO {
     @NotNull(message = "Name can not be null")
     @Size(min = 5, max = 50, message = "Name should be between 5 and 50 letter")
     private String name;
@@ -15,6 +14,12 @@ public class UserCreateDTO {
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String login;
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    private String adminPassword;
 
     public String getPassword() {
         return password;

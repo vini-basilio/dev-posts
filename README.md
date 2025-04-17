@@ -1,4 +1,4 @@
-# 📝 User Post API
+# 📝 User Post API para Microblog
 
 Uma API RESTful para gerenciar usuários e seus posts, feita com Spring Boot 3.2.4 e Java 17.  
 Ideal para testes, aprendizado e como entrega de desafio técnico.
